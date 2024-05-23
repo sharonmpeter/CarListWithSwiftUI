@@ -18,76 +18,94 @@ struct ContentView: View {
     var onColor = Color.orange
     
     var body: some View {
-        let carDataList = viewModel.lists
         
-        List(0..<carDataList.count,id: \.self) { index in
-            HStack(alignment: .top) {
-                Image(carDataList[index].make)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 140, height: 80)
-                VStack(alignment: .leading) {
-                    Text(carDataList[index].make)
-                        .font(.system(size: 23, weight: .bold))
-                        .foregroundColor(.gray).padding(.top,4)
-                    
-                    Text("Price : \(formatPoints(num: carDataList[index].marketPrice))")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.gray).padding(.bottom,4)
-                    // Spacer()
-                    
-                    HStack {
-                        ForEach(1..<maximumRating + 1, id: \.self) { number in
-                            image(for: number)
-                                .foregroundColor(number > carDataList[index].rating ? offColor : onColor)
+        NavigationStack {
+            
+            List(viewModel.lists) { car in
+                HStack(alignment: .top) {
+                    Image(car.make)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 140, height: 80)
+                    VStack(alignment: .leading) {
+                        Text(car.make)
+                            .font(.system(size: 23, weight: .bold))
+                            .foregroundColor(.gray).padding(.top,4)
+                        
+                        Text("Price : \(formatPoints(num: car.marketPrice))")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.gray).padding(.bottom,4)
+                        // Spacer()
+                        
+                        HStack {
+                            ForEach(1..<maximumRating + 1, id: \.self) { number in
+                                image(for: number)
+                                    .foregroundColor(number > car.rating ? offColor : onColor)
+                            }
                         }
+                        
+                    }
+                }
+                
+                VStack(alignment: .leading) {
+                    if car.prosList?.count ?? 0 > 0 {
+                        Text("Pros :")
+                            .font(.system(size: 23, weight: .bold))
+                            .foregroundColor(.gray).padding(.bottom,4)
+                    }
+                    if let pros = car.prosList, !pros.isEmpty {
+                        VStack(alignment: .leading) {
+                            Text("Pros:")
+                                .font(.system(size: 23, weight: .bold))
+                                .foregroundColor(.gray)
+                                .padding(.bottom, 4)
+                            
+                            LazyVStack(alignment: .leading) {
+                                ForEach(Array(pros.enumerated()), id: \.offset) { index, item in
+                                    if !item.isEmpty {
+                                        HStack {
+                                            Text("\u{2022} ")
+                                                .font(.system(size: 36, weight: .bold))
+                                                .foregroundColor(.orange)
+                                            Text(item)
+                                                .font(.system(size: 17, weight: .semibold))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
                     }
                     
+                    if let cons = car.consList, !cons.isEmpty {
+                        VStack(alignment: .leading) {
+                            Text("Cons:")
+                                .font(.system(size: 23, weight: .bold))
+                                .foregroundColor(.gray)
+                            
+                            LazyVStack(alignment: .leading) {
+                                ForEach(Array(cons.enumerated()), id: \.offset) { index, item in
+                                    if !item.isEmpty {
+                                        HStack {
+                                            Text("\u{2022} ")
+                                                .font(.system(size: 36, weight: .bold))
+                                                .foregroundColor(.orange)
+                                            Text(item)
+                                                .font(.system(size: 17, weight: .semibold))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             
-            VStack(alignment: .leading) {
-                if carDataList[index].prosList.count > 0 {
-                    Text("Pros :")
-                        .font(.system(size: 23, weight: .bold))
-                        .foregroundColor(.gray).padding(.bottom,4)
-                }
-                
-                if let pros = carDataList[index].prosList{
-                    LazyVStack(alignment: .leading) {
-                        ForEach(pros, id: \.self) { item in
-                            HStack{
-                                if item != "" {
-                                    Text("\u{2022} ").font(.system(size: 36, weight: .bold)).foregroundColor(.orange)
-                                    Text(item).font(.system(size: 17, weight: .semibold))
-                                    
-                                }
-                                
-                            }
-                        }
-                    }
-                    
-                }
-                
-                if let cons = carDataList[index].consList{
-                    Text("Cons :")
-                        .font(.system(size: 23, weight: .bold))
-                        .foregroundColor(.gray)
-                    LazyVStack(alignment: .leading) {
-                        ForEach(cons, id: \.self) { item in
-                            HStack{
-                                if item != "" {
-                                    Text("\u{2022} ").font(.system(size: 36, weight: .bold)).foregroundColor(.orange)
-                                    Text(item).font(.system(size: 17, weight: .semibold))
-                                }
-                            }
-                        }
-                    }
-                    
-                }
-            }
+            .navigationTitle("Cars Lists")
+            .navigationBarTitleDisplayMode(.inline)
+            
+            
         }
-        
         
     }
     func image(for number: Int) -> Image {
